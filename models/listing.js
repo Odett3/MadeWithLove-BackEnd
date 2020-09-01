@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      listing.belongsTo(models.user), listing.hasMany(models.listingImage);
+      listing.belongsTo(models.user),
+        listing.hasMany(models.listingImage),
+        listing.belongsToMany(models.tag);
     }
   }
   listing.init(
