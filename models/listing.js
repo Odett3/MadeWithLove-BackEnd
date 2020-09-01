@@ -10,7 +10,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       listing.belongsTo(models.user),
         listing.hasMany(models.listingImage),
-        listing.belongsToMany(models.tag);
+        listing.belongsToMany(models.tag, {
+          through: "listingTags",
+          foreignKey: "listingId",
+        });
     }
   }
   listing.init(
