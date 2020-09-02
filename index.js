@@ -124,6 +124,11 @@ app.get("/feed", async (req, res) => {
   const limit = req.query.limit || 10;
   const offset = req.query.offset || 0;
   const allListings = await listing.findAll({
+    include: [
+      { model: tag },
+      { model: user },
+      { model: listingImage, attributes: ["imageUrl"] },
+    ],
     limit,
     offset,
   });
