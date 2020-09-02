@@ -4,7 +4,7 @@ const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
 const authMiddleWare = require("./auth/middleware");
-
+const { user, listing, tag, listingImage, listingTag } = require("./models");
 const app = express();
 
 /**
@@ -120,8 +120,14 @@ if (process.env.DELAY) {
  */
 
 // GET endpoint for testing purposes, can be removed
-app.get("/", (req, res) => {
-  res.send("Hi from express");
+app.get("/feed", async (req, res) => {
+  const limit = req.query.limit || 10;
+  const offset = req.query.offset || 0;
+  const allListings = await listing.findAll({
+    limit,
+    offset,
+  });
+  res.status(200).send({ message: "ok", allListings });
 });
 
 // POST endpoint for testing purposes, can be removed
