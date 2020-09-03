@@ -3,8 +3,7 @@ const User = require("../models/").user;
 const Tag = require("../models/").tag;
 const Listing = require("../models/").listing;
 const ListingImage = require("../models/").listingImage;
-// const User = require("../models/").user
-
+const { cloudinary } = require("../utils/cloudinary");
 const router = new Router();
 
 router.get("/feed", async (req, res) => {
@@ -35,7 +34,9 @@ router.get("/feed/:id", async (req, res) => {
   });
 
   if (listing === null) {
-    return res.status(404).send({ message: "Homepage not found" });
+    return res
+      .status(404)
+      .send({ message: "Listing with this id is not found" });
   }
 
   res.status(200).send({ message: "ok", listing });
@@ -58,6 +59,20 @@ router.get("/user/:id", async (req, res) => {
   }
 
   res.status(200).send({ message: "ok", user });
+});
+
+router.post("/api/upload", async (req, res) => {
+  try {
+    const fileStr = req.body.data;
+    const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
+      upload_preset: "ml_default",
+    });
+    console.log(uploadedResponse);
+    res.json({ msg: "Yaaaaaay" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ err: "something went wrong" });
+  }
 });
 
 module.exports = router;
