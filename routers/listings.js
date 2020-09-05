@@ -3,7 +3,7 @@ const User = require("../models/").user;
 const Tag = require("../models/").tag;
 const Listing = require("../models/").listing;
 const ListingImage = require("../models/").listingImage;
-const { cloudinary } = require("../utils/cloudinary");
+
 const router = new Router();
 
 router.get("/feed", async (req, res) => {
@@ -59,20 +59,6 @@ router.get("/user/:id", async (req, res) => {
   }
 
   res.status(200).send({ message: "ok", user });
-});
-
-router.post("/api/upload", async (req, res) => {
-  try {
-    const fileStr = req.body.data;
-    const uploadedResponse = await cloudinary.uploader.upload(fileStr, {
-      upload_preset: "ml_default",
-    });
-    console.log(uploadedResponse);
-    res.json({ msg: "Yaaaaaay" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ err: "something went wrong" });
-  }
 });
 
 module.exports = router;
