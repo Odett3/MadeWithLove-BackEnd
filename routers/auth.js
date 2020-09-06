@@ -98,4 +98,33 @@ router.get("/me", authMiddleware, async (req, res) => {
   res.status(200).send({ ...req.user.dataValues, user });
 });
 
+router.post("/create", authMiddleware, async (req, res) => {
+  const user = await User.findOne({
+    where: { id: req.user.id },
+  });
+
+  if (user === null) {
+    return res.status(404).send({ message: "Does not exist" });
+  }
+
+  if (!user.userId === req.user.id) {
+    return res.status(403).send({ message: "Unauthorised Request" });
+  }
+
+  const { title, description, price } = req.body;
+
+  if (!title) {
+    return res.status(400).send({ message: "A story must have a name" });
+  }
+
+  const listing = await Listing.create({
+    title,
+    description,
+    price,
+    userId: user.id,
+  });
+
+  return res.status(201).send({ message: "Listing created", listing });
+});
+
 module.exports = router;
