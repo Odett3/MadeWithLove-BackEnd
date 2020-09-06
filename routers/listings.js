@@ -61,4 +61,9 @@ router.get("/user/:id", async (req, res) => {
   res.status(200).send({ message: "ok", user });
 });
 
+router.get("/users", async (req, res) => {
+  const allUsers = await User.findAll();
+  res.status(200).send({ message: "ok", allUsers });
+});
+
 module.exports = router;
