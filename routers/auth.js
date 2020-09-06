@@ -113,14 +113,17 @@ router.post("/create", authMiddleware, async (req, res) => {
 
   const { title, description, price } = req.body;
 
-  if (!title) {
-    return res.status(400).send({ message: "A story must have a name" });
+  if (!title || !description) {
+    return res
+      .status(400)
+      .send({ message: "Please fill all the required fields!" });
   }
 
   const listing = await Listing.create({
     title,
     description,
     price,
+    likes: 0,
     userId: user.id,
   });
 
