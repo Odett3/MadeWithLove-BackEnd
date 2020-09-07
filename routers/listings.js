@@ -66,4 +66,9 @@ router.get("/users", async (req, res) => {
   res.status(200).send({ message: "ok", allUsers });
 });
 
+router.get("/tags", async (req, res) => {
+  const allTags = await Tag.findAll();
+  res.status(200).send({ message: "ok", allTags });
+});
+
 module.exports = router;
