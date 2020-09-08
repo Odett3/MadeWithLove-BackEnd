@@ -3,10 +3,13 @@ const loggerMiddleWare = require("morgan");
 const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
+const listingRouter = require("./routers/listings");
 const authMiddleWare = require("./auth/middleware");
-const { user, listing, tag, listingImage, listingTag } = require("./models");
+
 const app = express();
 
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 /**
  * Middlewares
  *
@@ -120,20 +123,6 @@ if (process.env.DELAY) {
  */
 
 // GET endpoint for testing purposes, can be removed
-app.get("/feed", async (req, res) => {
-  const limit = req.query.limit || 10;
-  const offset = req.query.offset || 0;
-  const allListings = await listing.findAll({
-    include: [
-      { model: tag },
-      { model: user },
-      { model: listingImage, attributes: ["imageUrl"] },
-    ],
-    limit,
-    offset,
-  });
-  res.status(200).send({ message: "ok", allListings });
-});
 
 // POST endpoint for testing purposes, can be removed
 app.post("/echo", (req, res) => {
@@ -162,6 +151,7 @@ app.post("/authorized_post_request", authMiddleWare, (req, res) => {
 });
 
 app.use("/", authRouter);
+app.use(listingRouter);
 
 // Listen for connections on specified port (default is port 4000)
 
