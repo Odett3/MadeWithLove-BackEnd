@@ -4,6 +4,8 @@ const { toJWT } = require("../auth/jwt");
 const authMiddleware = require("../auth/middleware");
 const User = require("../models/").user;
 const Listing = require("../models").listing;
+const ListingImage = require("../models").listingImage;
+const ListingTag = require("../models").listingTag;
 const { SALT_ROUNDS } = require("../config/constants");
 
 const router = new Router();
@@ -99,9 +101,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 });
 
 router.post("/create", authMiddleware, async (req, res) => {
-  const user = await User.findOne({
-    where: { id: req.user.id },
-  });
+  const user = req.user;
 
   if (user === null) {
     return res.status(404).send({ message: "Does not exist" });
@@ -119,7 +119,7 @@ router.post("/create", authMiddleware, async (req, res) => {
       .send({ message: "Please fill all the required fields!" });
   }
 
-  const listing = await Listing.create({
+  const newListing = await Listing.create({
     title,
     description,
     price,
@@ -127,7 +127,39 @@ router.post("/create", authMiddleware, async (req, res) => {
     userId: user.id,
   });
 
-  return res.status(201).send({ message: "Listing created", listing });
+  const { imageUrl } = req.body;
+  const image = await ListingImage.create({
+    imageUrl,
+    listingId: newListing.id,
+  });
+  const { tags } = req.body;
+  const addTags = tags.map(async (t) => {
+    await ListingTag.create({
+      tagId: t,
+      listingId: newListing.id,
+    });
+  });
+  await Promise.all(addTags);
+
+  delete req.user.dataValues["password"];
+  res.status(201).send({
+    message: "Listing created",
+    ...req.user.dataValues,
+    listing,
+    image,
+  });
 });
 
+router.patch("/feed/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const listingAddLike = await Listing.findByPk(id);
+    const likes = listingAddLike.likes;
+    listingAddLike.update({ likes: likes + 1 });
+
+    return res.status(200).send({ listingAddLike });
+  } catch (error) {
+    console.log(error);
+  }
+});
 module.exports = router;

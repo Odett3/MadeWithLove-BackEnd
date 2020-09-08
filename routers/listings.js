@@ -7,7 +7,7 @@ const ListingImage = require("../models/").listingImage;
 const router = new Router();
 
 router.get("/feed", async (req, res) => {
-  const limit = req.query.limit || 10;
+  const limit = req.query.limit || 50;
   const offset = req.query.offset || 0;
   const allListings = await Listing.findAll({
     include: [
