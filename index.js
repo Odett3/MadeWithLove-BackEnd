@@ -3,10 +3,13 @@ const loggerMiddleWare = require("morgan");
 const corsMiddleWare = require("cors");
 const { PORT } = require("./config/constants");
 const authRouter = require("./routers/auth");
+const listingRouter = require("./routers/listings");
 const authMiddleWare = require("./auth/middleware");
 
 const app = express();
 
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 /**
  * Middlewares
  *
@@ -120,9 +123,6 @@ if (process.env.DELAY) {
  */
 
 // GET endpoint for testing purposes, can be removed
-app.get("/", (req, res) => {
-  res.send("Hi from express");
-});
 
 // POST endpoint for testing purposes, can be removed
 app.post("/echo", (req, res) => {
@@ -151,6 +151,7 @@ app.post("/authorized_post_request", authMiddleWare, (req, res) => {
 });
 
 app.use("/", authRouter);
+app.use(listingRouter);
 
 // Listen for connections on specified port (default is port 4000)
 
