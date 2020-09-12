@@ -54,7 +54,7 @@ router.post("/signup", async (req, res) => {
     postcode,
   } = req.body;
   if (!email || !password || !name) {
-    return res.status(400).send("Please provide an email, password and a name");
+    return res.status(402).send("Please provide an email, password and a name");
   }
 
   try {
@@ -78,8 +78,10 @@ router.post("/signup", async (req, res) => {
     res.status(201).json({ token, ...newUser.dataValues });
   } catch (error) {
     if (error.name === "SequelizeUniqueConstraintError") {
+      console.log(res.status);
+      console.log(error);
       return res
-        .status(400)
+        .status(401)
         .send({ message: "There is an existing account with this email" });
     }
 
@@ -93,7 +95,7 @@ router.post("/signup", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findOne({
     where: { id: req.user.id },
-    include: [Listing],
+    include: [{ model: Listing }],
   });
   // don't send back the password hash
   delete req.user.dataValues["password"];
@@ -150,16 +152,4 @@ router.post("/create", authMiddleware, async (req, res) => {
   });
 });
 
-router.patch("/feed/:id", async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const listingAddLike = await Listing.findByPk(id);
-    const likes = listingAddLike.likes;
-    listingAddLike.update({ likes: likes + 1 });
-
-    return res.status(200).send({ listingAddLike });
-  } catch (error) {
-    console.log(error);
-  }
-});
 module.exports = router;
