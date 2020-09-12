@@ -71,4 +71,17 @@ router.get("/tags", async (req, res) => {
   res.status(200).send({ message: "ok", allTags });
 });
 
+router.patch("/feed/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const listingAddLike = await Listing.findByPk(id);
+    const likes = listingAddLike.likes;
+    listingAddLike.update({ likes: likes + 1 });
+
+    return res.status(200).send({ listingAddLike });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = router;
